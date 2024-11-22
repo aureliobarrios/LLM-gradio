@@ -1,5 +1,8 @@
 import gradio as gr
 
+with open("index.html", "r") as file:
+    html_content = file.read()
+
 with gr.Blocks() as demo:
     # ---------- Components ----------
 
@@ -23,6 +26,8 @@ with gr.Blocks() as demo:
 
     #create output textbox
     output = gr.Textbox(label="Learning Path")
+
+    block = gr.HTML(f"""<iframe srcdoc='{html_content}'></iframe> """)
 
     # ---------- Functions ----------
 
