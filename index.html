@@ -68,7 +68,8 @@
                 xButton.onclick = () => {
                     // Remove the link and add the next one
                     if (currentIndex + visibleLinks < linksData.length) {
-                        currentIndex++;
+                        linksData.splice(i, 1);
+                        //currentIndex++;
                     }
                     renderLinks();
                 };
