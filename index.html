@@ -4,33 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dynamic Links with Buttons</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .link-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .link-row a {
-            margin-right: 10px;
-            text-decoration: none;
-            color: black;
-        }
-        .link-row a.green {
-            color: green;
-        }
-        button {
-            margin-right: 5px;
-        }
-    </style>
 </head>
 <body>
     <div id="links-container"></div>
 
     <script>
+        document.body.style.margin = '20px';
+        
         // Mock JSON data
         const linksData = [
             { text: "Link 1", url: "https://example.com/1" },
@@ -57,7 +37,18 @@
                 const row = document.createElement('div');
                 row.className = 'link-row';
 
+                //add style
+                row.style.display = 'flex';
+                row.style.alignItems = 'center';
+                row.style.marginBottom = '10px';
+
                 const link = document.createElement('a');
+
+                //add style
+                link.style.marginRight = '10px';
+                link.style.textDecoration = 'none';
+                link.style.color = 'black';
+
                 link.href = linkData.url;
                 link.textContent = linkData.url;
                 link.target = '_blank';
@@ -65,12 +56,14 @@
 
                 const checkButton = document.createElement('button');
                 checkButton.textContent = '✔';
+                checkButton.style.marginRight = '5px';
                 checkButton.onclick = () => {
-                    link.classList.add('green');
+                    link.style.color = 'green';
                 };
                 row.appendChild(checkButton);
 
                 const xButton = document.createElement('button');
+                xButton.style.marginRight = '5px';
                 xButton.textContent = '✖';
                 xButton.onclick = () => {
                     // Remove the link and add the next one
