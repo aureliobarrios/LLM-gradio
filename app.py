@@ -29,16 +29,16 @@ function createGradio() {
     linksContainer.id = 'links-container';
 
     const linksData = [
-        { text: "Link 1", url: "https://example.com/1" },
-        { text: "Link 2", url: "https://example.com/2" },
-        { text: "Link 3", url: "https://example.com/3" },
-        { text: "Link 4", url: "https://example.com/4" },
-        { text: "Link 5", url: "https://example.com/5" },
-        { text: "Link 6", url: "https://example.com/6" },
-        { text: "Link 7", url: "https://example.com/7" },
-        { text: "Link 8", url: "https://example.com/8" },
-        { text: "Link 9", url: "https://example.com/9" },
-        { text: "Link 10", url: "https://example.com/10" }
+            { text: "Link 1", url: "https://example.com/1" },
+            { text: "Link 2", url: "https://example.com/2" },
+            { text: "Link 3", url: "https://example.com/3" },
+            { text: "Link 4", url: "https://example.com/4" },
+            { text: "Link 5", url: "https://example.com/5" },
+            { text: "Link 6", url: "https://example.com/6" },
+            { text: "Link 7", url: "https://example.com/7" },
+            { text: "Link 8", url: "https://example.com/8" },
+            { text: "Link 9", url: "https://example.com/9" },
+            { text: "Link 10", url: "https://example.com/10" }
     ];
 
     const visibleLinks = 5; // Number of rows to display
@@ -51,7 +51,18 @@ function createGradio() {
             const row = document.createElement('div');
             row.className = 'link-row';
 
+            //add style
+            row.style.display = 'flex';
+            row.style.alignItems = 'center';
+            row.style.marginBottom = '10px';
+
             const link = document.createElement('a');
+            
+            //add style
+            link.style.marginRight = '10px';
+            link.style.textDecoration = 'none';
+            link.style.color = 'black';
+            
             link.href = linkData.url;
             link.textContent = linkData.url;
             link.target = '_blank';
@@ -69,7 +80,9 @@ function createGradio() {
             xButton.onclick = () => {
                 // Remove the link and add the next one
                 if (currentIndex + visibleLinks < linksData.length) {
-                    currentIndex++;
+                    //update
+                    linksData.splice(i, 1);
+                    //currentIndex++;
                 }
                 renderLinks();
             };
