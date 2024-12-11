@@ -14,20 +14,30 @@ with gr.Blocks() as demo:
 
     #add difficulty selection component
     difficulty = gr.Radio(visible=False)
+    
 
-    #build selection gradio
-    radio = gr.Radio(visible=False)
-
+    #build selection section
+    radio = gr.Radio(
+        ["Web Results", "Videos"],
+        value="Web Results",
+        label="What kind of resources would you like to receive?"
+    )
     #build chatbot interface
-    chatbot = gr.Chatbot(type="messages")
 
-    #build message textbox for chatbot
-    msg = gr.Textbox(visible=False)
+    message = """Hello, I am your chatbot assistant tasked with building a learning path for you!.
+    \nPlease enter what you wish to learn below!
+    """
+
+    chatbot = gr.Chatbot(value=[
+        {"role": "assistant", "content": message}
+    ], type="messages")
+    #build textbot for message input
+    msg = gr.Textbox(placeholder="Insert what you wish to learn here")
 
     #build button row section
     with gr.Row():
-        clear_button = gr.Button("Clear", interactive=False)
-        submit_button = gr.Button("Build Path", interactive=False)
+        clear_button = gr.Button("Clear")
+        submit_button = gr.Button("Build Path")
 
     # ---------- Functions ----------
 
@@ -63,9 +73,10 @@ with gr.Blocks() as demo:
         trial_name = "TEST"
         display_message = f"Query Information Saved To: ./gradio-tests/queries_{trial_name}.txt"
         gr.Info(display_message, duration=1)
-    
-    def build_layout(build_type):
-        #change layout based on student selection
+
+    #function to change display of dropdowns
+    def change_display(build_type, difficulty):
+        #change layout if student picks learning path builder
         if build_type == "Learning Path":
             #build topic textbox selection
             topic = gr.Textbox(
@@ -79,53 +90,17 @@ with gr.Blocks() as demo:
                 ["Beginner", "Intermediate", "Hard", "Advanced"],
                 value="Beginner",
                 label="What would you say your current expertise level on the subject is at?",
-                visible=True,
-                interactive=True
+                visible=True
             )
-            #build chatbot interface
-            chatbot = gr.Chatbot(type="messages")
-            #build textbot for message input
-            msg = gr.Textbox(visible=False)
         else:
-            #build topic textbox selection
-            topic = gr.Textbox(visible=False, value='')
-            #build difficulty level selection
+            #reset layout
             difficulty = gr.Radio(visible=False)
-            #build chatbot message
-            message = """Hello, I am your chatbot assistant tasked with building a learning path for you!.
-            \nPlease enter what you wish to learn below!
-            """
-            #build chatbot interface
-            chatbot = gr.Chatbot(value=[
-                {"role": "assistant", "content": message}
-            ], type="messages")
-            #build textbox for message input
-            msg = gr.Textbox(placeholder="Insert what you wish to learn here", visible=True)
-        return topic, difficulty, chatbot, msg
-    
-    #build layout for resource type selection
-    def resource_selection(radio):
-        radio = gr.Radio(
-            ["Web Results", "Videos"],
-            value="Web Results",
-            label="What kind of resources would you like to receive?",
-            visible=True
-        )
-        return radio
-    
-    #build layout for button functionality
-    def buttons(clear_button, submit_button):
-        clear_button = gr.Button("Clear", interactive=True)
-        submit_button = gr.Button("Build Path", interactive=True)
-        return clear_button, submit_button
+            topic = gr.Textbox(visible=False, value='')
+        return difficulty, topic
     
     # ---------- Actions ----------
     build_type.select(
-        build_layout, build_type, [topic, difficulty, chatbot, msg]
-    ).then(
-        resource_selection, radio, radio
-    ).then(
-        buttons, [clear_button, submit_button], [clear_button, submit_button]
+        change_display, [build_type, difficulty], [difficulty, topic], queue=False
     )
 
     #handle user submit
