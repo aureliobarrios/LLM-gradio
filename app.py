@@ -3,6 +3,19 @@ import gradio as gr
 with gr.Blocks() as demo:    
     # ---------- Components ----------
 
+    #add build type component
+    build_type = gr.Radio(
+        ["Learning Path", "Tutorial"],
+        label="What do you wish to build today?"
+    )
+
+    #add learning path topic textbox
+    topic = gr.Textbox(visible=False)
+
+    #add difficulty selection component
+    difficulty = gr.Radio(visible=False)
+    
+
     #build selection section
     radio = gr.Radio(
         ["Web Results", "Videos"],
@@ -49,19 +62,46 @@ with gr.Blocks() as demo:
     def learning_path_info():
         trial_name = "TEST"
         display_message = f"Learning Path Context Saved To: ./gradio-tests/{trial_name}.txt"
-        gr.Info(display_message, duration=10)
+        gr.Info(display_message, duration=1)
 
     def extracted_content_info():
         trial_name = "TEST"
         display_message = f"Extracted Content Saved To: ./gradio-tests/content_{trial_name}.txt"
-        gr.Info(display_message, duration=10)
+        gr.Info(display_message, duration=1)
 
     def query_info():
         trial_name = "TEST"
         display_message = f"Query Information Saved To: ./gradio-tests/queries_{trial_name}.txt"
-        gr.Info(display_message, duration=10)
+        gr.Info(display_message, duration=1)
+
+    #function to change display of dropdowns
+    def change_display(build_type, difficulty):
+        #change layout if student picks learning path builder
+        if build_type == "Learning Path":
+            #build topic textbox selection
+            topic = gr.Textbox(
+                label="What topic would you like you build your learning path for? i.e. Python, JavaScript, etc...",
+                placeholder="Insert your learning topic here",
+                interactive=True,
+                visible=True
+            )
+            #build difficulty level selection
+            difficulty = gr.Radio(
+                ["Beginner", "Intermediate", "Hard", "Advanced"],
+                value="Beginner",
+                label="What would you say your current expertise level on the subject is at?",
+                visible=True
+            )
+        else:
+            #reset layout
+            difficulty = gr.Radio(visible=False)
+            topic = gr.Textbox(visible=False, value='')
+        return difficulty, topic
     
     # ---------- Actions ----------
+    build_type.select(
+        change_display, [build_type, difficulty], [difficulty, topic], queue=False
+    )
 
     #handle user submit
     msg.submit(
