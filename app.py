@@ -32,13 +32,31 @@ with gr.Blocks() as demo:
     # ---------- Functions ----------
 
     #function to receive user input
-    def user(user_message, history):
-        return "", history + [{"role": "user", "content": user_message}]
+    def user(build_type, topic, msg, history):
+        if build_type == "Learning Path":
+            #build chatbot message
+            message = f"Requested Learning Path For: {topic}"
+            return "", history + [{"role": "user", "content": message}]
+        else:
+            return "", history + [{"role": "user", "content": msg}]
     
     #function to return bot output
-    def bot(history):
-        #add streaming functionaility
-        history.append({"role": "assistant", "content": "testing"})
+    def bot(build_type, difficulty, radio, history):
+        #get the previous message
+        prev_message = history[-1]["content"]
+        #handle input based on different selections
+        if build_type == "Learning Path":
+            #get the topic
+            topic = prev_message.split(":")[1].lower()
+            #build test message
+            message = f"Prompt Input: I want to learn {topic}"
+            #add message to history
+            history.append({"role": "assistant", "content": message})
+        else:
+            #build message
+            message = f"Prompt Input: {prev_message}"
+            #add streaming functionaility
+            history.append({"role": "assistant", "content": message})
         return history
     
     def clear_handle(history):
@@ -160,6 +178,7 @@ with gr.Blocks() as demo:
         return build_type, topic, difficulty, radio, chatbot, msg, clear_button, submit_button
     
     # ---------- Actions ----------
+    #handle build type selection
     build_type.select(
         build_layout, build_type, [topic, difficulty, chatbot, msg]
     ).then(
@@ -170,7 +189,7 @@ with gr.Blocks() as demo:
 
     #handle user click on clear button
     clear_button.click(
-        clear_handle, chatbot, chatbot, queue=False
+        clear_handle, chatbot, chatbot
     ).then(
         clear_all, None, [build_type, topic, difficulty, radio, chatbot, msg, clear_button, submit_button]
     )
@@ -179,9 +198,9 @@ with gr.Blocks() as demo:
     submit_button.click(
         check_input, [build_type, topic, msg], None
     ).success(
-        user, [msg, chatbot], [msg, chatbot]
+        user, [build_type, topic, msg, chatbot], [msg, chatbot]
     ).then(
-        bot, chatbot, chatbot
+        bot, [build_type, difficulty, radio, chatbot], chatbot
     ).then(
         learning_path_info, None, None
     ).then(
@@ -193,15 +212,25 @@ with gr.Blocks() as demo:
     #handle topic textbox submit
     topic.submit(
         check_input, [build_type, topic, msg], None
+    ).success(
+        user, [build_type, topic, msg, chatbot], [topic, chatbot]
+    ).then(
+        bot, [build_type, difficulty, radio, chatbot], chatbot
+    ).then(
+        learning_path_info, None, None
+    ).then(
+        extracted_content_info, None, None
+    ).then(
+        query_info, None, None
     )
     
     #handle user submit
     msg.submit(
         check_input, [build_type, topic, msg], None
     ).success(
-        user, [msg, chatbot], [msg, chatbot], queue=False
+        user, [build_type, topic, msg, chatbot], [msg, chatbot]
     ).then(
-        bot, chatbot, chatbot
+        bot, [build_type, difficulty, radio, chatbot], chatbot
     ).then(
         learning_path_info, None, None
     ).then(
