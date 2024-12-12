@@ -36,7 +36,7 @@ with gr.Blocks() as demo:
         return "", history + [{"role": "user", "content": user_message}]
     
     #function to return bot output
-    def bot(history, radio):
+    def bot(history):
         #add streaming functionaility
         history.append({"role": "assistant", "content": "testing"})
         return history
@@ -44,8 +44,6 @@ with gr.Blocks() as demo:
     def clear_handle(history):
         #clear chatbot history
         history = []
-        #add initial chat prompt
-        history.append({"role": "assistant", "content": message})
         return history
     
     #functions to display file saving information
@@ -91,16 +89,14 @@ with gr.Blocks() as demo:
             topic = gr.Textbox(visible=False, value='')
             #build difficulty level selection
             difficulty = gr.Radio(visible=False)
-            #build chatbot message
-            message = """Hello, I am your chatbot assistant tasked with building a learning path for you!.
-            \nPlease enter what you wish to learn below!
-            """
             #build chatbot interface
-            chatbot = gr.Chatbot(value=[
-                {"role": "assistant", "content": message}
-            ], type="messages")
+            chatbot = gr.Chatbot(type="messages")
             #build textbox for message input
-            msg = gr.Textbox(placeholder="Insert what you wish to learn here", visible=True)
+            msg = gr.Textbox(
+                label="What question do you want to build a tutorial for?",
+                placeholder="Insert what you wish to learn here",
+                visible=True
+            )
         return topic, difficulty, chatbot, msg
     
     #build layout for resource type selection
@@ -119,6 +115,50 @@ with gr.Blocks() as demo:
         submit_button = gr.Button("Build Path", interactive=True)
         return clear_button, submit_button
     
+    def check_input(build_type, topic, msg):
+        if build_type == "Learning Path":
+            #list possible learning paths
+            possible_topics = ["python", "javascript"]
+            #check to see if topic is note empty
+            if not topic.strip():
+                raise gr.Error("Make sure to include your topic!")
+            if topic.lower() not in possible_topics:
+                raise gr.Error("Did not recognize topic, make sure to include programming specific topics!")
+        else:
+            #check tutorial edge cases
+            if not msg.strip():
+                raise gr.Error("Make sure to input message!")
+
+    def clear_all():
+        #add build type component
+        build_type = gr.Radio(
+            ["Learning Path", "Tutorial"],
+            label="What do you wish to build today?",
+            value=None
+        )
+
+        #add learning path topic textbox
+        topic = gr.Textbox(visible=False)
+
+        #add difficulty selection component
+        difficulty = gr.Radio(visible=False)
+
+        #build selection gradio
+        radio = gr.Radio(visible=False)
+
+        #build chatbot interface
+        chatbot = gr.Chatbot(type="messages")
+
+        #build message textbox for chatbot
+        msg = gr.Textbox(visible=False)
+
+        #build button row section
+        with gr.Row():
+            clear_button = gr.Button("Clear", interactive=False)
+            submit_button = gr.Button("Build Path", interactive=False)
+
+        return build_type, topic, difficulty, radio, chatbot, msg, clear_button, submit_button
+    
     # ---------- Actions ----------
     build_type.select(
         build_layout, build_type, [topic, difficulty, chatbot, msg]
@@ -128,11 +168,20 @@ with gr.Blocks() as demo:
         buttons, [clear_button, submit_button], [clear_button, submit_button]
     )
 
-    #handle user submit
-    msg.submit(
-        user, [msg, chatbot], [msg, chatbot], queue=False
+    #handle user click on clear button
+    clear_button.click(
+        clear_handle, chatbot, chatbot, queue=False
     ).then(
-        bot, [chatbot, radio], chatbot
+        clear_all, None, [build_type, topic, difficulty, radio, chatbot, msg, clear_button, submit_button]
+    )
+
+    #handle user click on submit button
+    submit_button.click(
+        check_input, [build_type, topic, msg], None
+    ).success(
+        user, [msg, chatbot], [msg, chatbot]
+    ).then(
+        bot, chatbot, chatbot
     ).then(
         learning_path_info, None, None
     ).then(
@@ -141,16 +190,18 @@ with gr.Blocks() as demo:
         query_info, None, None
     )
 
-    #handle user click on clear button
-    clear_button.click(
-        clear_handle, chatbot, chatbot, queue=False
+    #handle topic textbox submit
+    topic.submit(
+        check_input, [build_type, topic, msg], None
     )
-
-    #handle user click on submit button
-    submit_button.click(
+    
+    #handle user submit
+    msg.submit(
+        check_input, [build_type, topic, msg], None
+    ).success(
         user, [msg, chatbot], [msg, chatbot], queue=False
     ).then(
-        bot, [chatbot, radio], chatbot
+        bot, chatbot, chatbot
     ).then(
         learning_path_info, None, None
     ).then(
